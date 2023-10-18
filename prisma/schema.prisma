@@ -11,29 +11,28 @@ datasource db {
 }
 
 model Vendor {
-  id Int @id @default(autoincrement())
-   firstName String
-   lastName String
-   email String @unique
-   password String
-   phoneNumber String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           Int            @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  email        String         @unique
+  password     String
+  phoneNumber  String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
   businessInfo BusinessInfo[]
 }
 
 model BusinessInfo {
-  id Int @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   businessName String
   businessType String
-  address String
-  licensed Boolean
-  insured Boolean
-  ownerName String
-  vendorId  Int
+  address      String
+  licensed     String @default("No")
+  insured      String @default("No")
+  ownerName    String
+  vendorId     Int
 
-  vendor Vendor @relation(fields: [vendorId], references: [id]) 
+  vendor    Vendor   @relation(fields: [vendorId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 }
