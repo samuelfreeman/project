@@ -27,6 +27,14 @@ app.post("/register", async (req, res) => {
       insured,
       ownerName,
     } = req.body;
+
+    //Implementation of eligibility validation logic
+    if (!isEligible(businessType, licensed, insured)) {
+      return res
+        .status(400)
+        .json({ error: "Vendor is not eligible to register." });
+    }
+
     //Hash the password before storing it
     const hashedPassword = await bcrypt.hash(password, 10);
     password = hashedPassword;
@@ -56,6 +64,10 @@ app.post("/register", async (req, res) => {
     res.status(500).json({ error: `Failed to register vendor !.` });
   }
 });
+
+function isEligible(businessType, licensed, insured) {
+  return businessType === "Retaurant" && licensed && insured;
+}
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
