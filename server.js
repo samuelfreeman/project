@@ -16,7 +16,6 @@ app.post('/register', async (req, res) => {
   try {
     const data = req.body;
     let { firstName, lastName, email, password, phoneNumber } = data;
-
     const {
       businessName,
       businessType,
