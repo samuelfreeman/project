@@ -14,60 +14,30 @@ app.get("/", (req, res) => {
 
 app.post("/register", async (req, res) => {
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      phoneNumber,
-      businessName,
-      businessType,
-      address,
-      licensed,
-      insured,
-      ownerName,
-    } = req.body;
-
-    //Implementation of eligibility validation logic
-    if (!isEligible(businessType, licensed, insured)) {
-      return res
-        .status(400)
-        .json({ error: "Vendor is not eligible to register." });
-    }
-
-    //Hash the password before storing it
-    const hashedPassword = await bcrypt.hash(password, 10);
-    password = hashedPassword;
-    //Create the vendor and business info records with a transaction
-    const vendor = await prisma.vendor.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        password,
-        phoneNumber,
-        businessInfo: {
-          create: {
-            businessName,
-            businessType,
-            address,
-            licensed,
-            insured,
-            ownerName,
-          },
-        },
-      },
+    const data = req.body;
+    // This will check whether vendor's details already exist in the database
+    const existingVendor = await prisma.vendor.findFirst({
+      data,
     });
-    res.status(200).json(vendor);
+    if (existingVendor) {
+      return res.status(409).json({ massage: "Vendor has already registered" });
+    } else {
+      //Hash the password before storing it
+      const hashedPassword = await bcrypt.hash(password, 10);
+      password = hashedPassword;
+      //Create the vendor and business info records with a transaction
+      const newVendor = await prisma.vendor.create({
+        data,
+      });
+      res
+        .status(201)
+        .json({ massage: "Vendor successfully registered", vendor: newVendor });
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: `Failed to register vendor !.` });
+    res.status(500).json({ massage: "Internal Server Error" });
   }
 });
-
-function isEligible(businessType, licensed, insured) {
-  return businessType === "Retaurant" && licensed && insured;
-}
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
